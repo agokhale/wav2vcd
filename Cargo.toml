@@ -1,0 +1,8 @@
+[package]
+name = "wav2vcd"
+version = "0.1.0"
+authors = ["agokhale <ash@aeria.net>"]
+
+[dependencies]
+hound  = "*"
+vcd  = "*"
