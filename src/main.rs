@@ -73,6 +73,7 @@ fn main() {
 
         writr.timestamp ( tstamp ); // XXfixme for ns timstamp vs samp_rate
         writr.change_scalar (lrclock,  ( i%2 ==0)   ).expect("verr");
+	writr.change_scalar (noamiout, false) .expect("aessetpreambleerr");
 
 	if i%192 == 0 { which_preamble = 2 ;} // z preambles every 192 frames
 
@@ -90,15 +91,21 @@ fn main() {
 
 
 	let mut amiflip = false;
-	for timeslot in 4..27 {
+	for timeslot in 4..31 {
 		let the_time = (tstamp as f64) +( (timeslot as f64 )  * ns_per_timeslot );
-		let shifted = odo[i].checked_shr( timeslot - 4);
 		let mut payload = false;
-		if shifted == None {
-			payload = false;
-		} else {
-			payload= shifted.unwrap() & 1 == 1;
+		if ( timeslot <=27 ) {
+			let shifted = odo[i].checked_shr( timeslot - 4);
+			if shifted == None {
+				payload = false;
+			} else {
+				payload= shifted.unwrap() & 1 == 1;
+			}
 		}
+		if ( timeslot == 28 ){ payload = true;} //valid
+		if ( timeslot == 29 ){ payload = false;} //user data
+		if ( timeslot == 30 ){ payload = true;} //status
+		if ( timeslot == 31 ) {payload = (odo[i]%2 == 1 );} // parity XXXX
 
         	writr.timestamp ( the_time as u64 ).expect ("ts"); 
 		
